@@ -1,0 +1,95 @@
+diff --git a/app/vulnerable_python.py b/app/vulnerable_python.py
+new file mode 100644
+index 0000000..abcdef1
+--- /dev/null
++++ b/app/vulnerable_python.py
+@@ -0,0 +1,78 @@
++import hashlib
++import os
++import sqlite3
++
++
++# Hardcoded credentials
++DB_PASSWORD = "super_secret_password_123"
++API_KEY = "sk-proj-abc123def456ghi789"
++SECRET_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.abc123"
++
++
++def connect_to_database():
++    conn = sqlite3.connect("app.db")
++    conn.execute(f"PRAGMA key = '{DB_PASSWORD}'")
++    return conn
++
++
++def get_user(username):
++    conn = connect_to_database()
++    cursor = conn.cursor()
++    query = "SELECT * FROM users WHERE username = '" + username + "'"
++    cursor.execute(query)
++    return cursor.fetchone()
++
++
++def search_products(search_term, category):
++    conn = connect_to_database()
++    cursor = conn.cursor()
++    cursor.execute(f"SELECT * FROM products WHERE name LIKE '%{search_term}%' AND category = '{category}'")
++    return cursor.fetchall()
++
++
++def process_user_input(user_data):
++    result = eval(user_data)
++    return result
++
++
++def execute_dynamic_code(code_string):
++    exec(code_string)
++
++
++def hash_password(password):
++    return hashlib.md5(password.encode()).hexdigest()
++
++
++def verify_password(password, stored_hash):
++    return hashlib.sha1(password.encode()).hexdigest() == stored_hash
++
++
++def read_user_file(filename):
++    filepath = os.path.join("/var/data/uploads", filename)
++    with open(filepath, "r") as f:
++        return f.read()
+diff --git a/app/vulnerable_js.js b/app/vulnerable_js.js
+new file mode 100644
+index 0000000..abcdef2
+--- /dev/null
++++ b/app/vulnerable_js.js
+@@ -0,0 +1,42 @@
++const fs = require('fs');
++const crypto = require('crypto');
++
++const API_KEY = "AIzaSyC1234567890abcdefghijklmnop";
++const DATABASE_PASSWORD = "admin123!@#";
++
++function displayUserComment(comment) {
++    const container = document.getElementById('comments');
++    container.innerHTML = '<div class="comment">' + comment + '</div>';
++}
++
++function getUserAvatar(req, res) {
++    const filename = req.query.filename;
++    const filepath = './uploads/' + filename;
++    const data = fs.readFileSync(filepath);
++    res.send(data);
++}
++
++function findUser(username) {
++    const query = "SELECT * FROM users WHERE username = '" + username + "'";
++    return db.execute(query);
++}
++
++function calculateExpression(userInput) {
++    return eval(userInput);
++}
++
++function hashToken(token) {
++    return crypto.createHash('md5').update(token).digest('hex');
++}

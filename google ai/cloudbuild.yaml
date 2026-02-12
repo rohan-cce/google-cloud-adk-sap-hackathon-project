@@ -1,0 +1,26 @@
+steps:
+  # Build container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/security-review-agent', '.']
+
+  # Push to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/security-review-agent']
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'security-review-agent'
+      - '--image=gcr.io/$PROJECT_ID/security-review-agent'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--service-account=sec-review-agent@$PROJECT_ID.iam.gserviceaccount.com'
+      - '--timeout=300'
+      - '--memory=1Gi'
+
+images:
+  - 'gcr.io/$PROJECT_ID/security-review-agent'
